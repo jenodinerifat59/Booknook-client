@@ -4,12 +4,12 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import toast from "react-hot-toast";
+import Image from "next/image";
 
 const MyBooksPage = () => {
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // TODO: Better Auth থেকে logged-in user-এর email নেবে
   const userEmail = "user@email.com";
 
   useEffect(() => {
@@ -118,7 +118,7 @@ const MyBooksPage = () => {
                   >
                     <td className="p-4">
                       <div className="flex items-center gap-3">
-                        <img
+                        <Image
                           src={book.image}
                           alt={book.title}
                           className="h-16 w-12 rounded object-cover"

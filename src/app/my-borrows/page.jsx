@@ -1,6 +1,7 @@
 
 "use client";
 
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
@@ -105,7 +106,7 @@ const MyBorrowsPage = () => {
                   >
                     <td className="p-4">
                       <div className="flex items-center gap-3">
-                        <img
+                        <Image
                           src={borrow.bookImage}
                           alt={borrow.bookTitle}
                           className="h-16 w-12 rounded object-cover"
