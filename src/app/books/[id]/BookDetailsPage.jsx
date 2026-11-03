@@ -9,16 +9,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 const API_URL = 'https://booknook-server-5hv3.onrender.com';
 
-const getLocalDate = () => {
-  const date = new Date();
-
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-
-  return `${year}-${month}-${day}`;
-};
-
 // Animation Variants
 const pageVariants = {
   hidden: { opacity: 0 },
@@ -91,9 +81,15 @@ const BookDetailsPage = ({ book, user }) => {
   const [borrowDate, setBorrowDate] = useState('');
   const [returnDate, setReturnDate] = useState('');
 
-  // Set Current Date
+  // Set current date after component mounts
   useEffect(() => {
-    setBorrowDate(getLocalDate());
+    const currentDate = new Date();
+
+    const year = currentDate.getFullYear();
+    const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+    const day = String(currentDate.getDate()).padStart(2, '0');
+
+    setBorrowDate(`${year}-${month}-${day}`);
   }, []);
 
   if (!book) {
@@ -145,6 +141,9 @@ const BookDetailsPage = ({ book, user }) => {
     try {
       setBorrowing(true);
 
+      const borrowDateISO = `${borrowDate}T00:00:00.000Z`;
+      const returnDateISO = `${returnDate}T23:59:59.000Z`;
+
       const res = await fetch(`${API_URL}/borrows`, {
         method: 'POST',
         headers: {
@@ -157,8 +156,8 @@ const BookDetailsPage = ({ book, user }) => {
           userEmail: user.email,
           bookTitle: book.title,
           bookImage: book.coverImage || '',
-          borrowDate: new Date(`${borrowDate}T00:00:00`),
-          returnDate: new Date(`${returnDate}T23:59:59`),
+          borrowDate: borrowDateISO,
+          returnDate: returnDateISO,
           status: 'borrowed',
         }),
       });
@@ -364,23 +363,11 @@ const BookDetailsPage = ({ book, user }) => {
               className="mb-6 grid grid-cols-2 gap-4 rounded-2xl border border-[#234C3D]/10 bg-[#F8F6F0] p-4 sm:p-5"
             >
               {[
-                {
-                  label: 'Added By',
-                  value: addedBy || 'Unknown',
-                },
-                {
-                  label: 'Category',
-                  value: book.category || 'N/A',
-                },
-                {
-                  label: 'Total Copies',
-                  value: `${totalCopies} Copies`,
-                },
-                {
-                  label: 'Available Copies',
-                  value: `${availableCopies} Copies`,
-                },
-              ].map((item, index) => (
+                { label: 'Added By', value: addedBy || 'Unknown' },
+                { label: 'Category', value: book.category || 'N/A' },
+                { label: 'Total Copies', value: `${totalCopies} Copies` },
+                { label: 'Available Copies', value: `${availableCopies} Copies` },
+              ].map((item) => (
                 <motion.div
                   key={item.label}
                   variants={itemVariants}
@@ -405,17 +392,13 @@ const BookDetailsPage = ({ book, user }) => {
             </motion.div>
 
             {/* Description */}
-            <motion.div
-              variants={itemVariants}
-              className="mb-8"
-            >
+            <motion.div variants={itemVariants} className="mb-8">
               <h2 className="mb-3 text-lg font-bold text-[#234C3D]">
                 About This Book
               </h2>
 
               <p className="text-sm leading-7 text-gray-600 sm:text-base">
-                {book.description ||
-                  'No description available for this book.'}
+                {book.description || 'No description available for this book.'}
               </p>
             </motion.div>
 
@@ -428,9 +411,7 @@ const BookDetailsPage = ({ book, user }) => {
               {user ? (
                 <button
                   type="button"
-                  onClick={() =>
-                    setShowBorrowForm((previous) => !previous)
-                  }
+                  onClick={() => setShowBorrowForm((previous) => !previous)}
                   disabled={availableCopies <= 0}
                   className="w-full rounded-xl bg-[#234C3D] px-6 py-3.5 font-bold text-white shadow-lg shadow-[#234C3D]/20 transition hover:bg-[#18392D] disabled:cursor-not-allowed disabled:opacity-50"
                 >
@@ -526,7 +507,7 @@ const BookDetailsPage = ({ book, user }) => {
                       type="date"
                       value={returnDate}
                       onChange={(e) => setReturnDate(e.target.value)}
-                      min={borrowDate}
+                      min={borrowDate ? borrowDate : undefined}
                       required
                       className="w-full rounded-xl border border-[#234C3D]/20 bg-white px-4 py-3 text-sm text-gray-700 outline-none transition focus:border-[#234C3D] focus:ring-2 focus:ring-[#234C3D]/10"
                     />
@@ -543,14 +524,10 @@ const BookDetailsPage = ({ book, user }) => {
                   >
                     <button
                       type="submit"
-                      disabled={
-                        borrowing || !borrowDate || !returnDate
-                      }
+                      disabled={borrowing || !borrowDate || !returnDate}
                       className="w-full rounded-xl bg-[#234C3D] px-6 py-3.5 font-bold text-white transition hover:bg-[#18392D] disabled:cursor-not-allowed disabled:opacity-50"
                     >
-                      {borrowing
-                        ? 'Processing...'
-                        : 'Confirm Borrow'}
+                      {borrowing ? 'Processing...' : 'Confirm Borrow'}
                     </button>
                   </motion.div>
                 </motion.form>

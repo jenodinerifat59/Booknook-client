@@ -1,13 +1,13 @@
 
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
 import toast from "react-hot-toast";
 import Link from "next/link";
 
-export default function ResetPasswordPage() {
+function ResetPasswordForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -54,7 +54,6 @@ export default function ResetPasswordPage() {
       }
 
       toast.success("Password reset successful!");
-
       router.push("/login");
     } catch (error) {
       console.error(error);
@@ -67,7 +66,6 @@ export default function ResetPasswordPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-100 px-4 py-10">
       <div className="w-full max-w-md rounded-xl bg-white p-8 shadow-md">
-
         <h1 className="mb-2 text-center text-3xl font-bold text-gray-800">
           Reset Password
         </h1>
@@ -91,7 +89,6 @@ export default function ResetPasswordPage() {
           </div>
         ) : (
           <form onSubmit={handleResetPassword} className="space-y-5">
-
             <div>
               <label className="mb-2 block font-medium text-gray-700">
                 New Password
@@ -129,10 +126,23 @@ export default function ResetPasswordPage() {
             >
               {loading ? "Updating..." : "Reset Password"}
             </button>
-
           </form>
         )}
       </div>
     </div>
+  );
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center bg-gray-100">
+          <p className="text-gray-500">Loading...</p>
+        </div>
+      }
+    >
+      <ResetPasswordForm />
+    </Suspense>
   );
 }

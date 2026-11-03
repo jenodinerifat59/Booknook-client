@@ -29,7 +29,6 @@ function NavbarContent() {
 
   const dropdownRef = useRef(null);
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     function handleClickOutside(e) {
       if (
@@ -47,7 +46,6 @@ function NavbarContent() {
     };
   }, []);
 
-  // Close menus after navigation
   useEffect(() => {
     setMenuOpen(false);
     setDropdownOpen(false);
@@ -57,7 +55,6 @@ function NavbarContent() {
     ? [...publicLinks, ...privateLinks]
     : publicLinks;
 
-  // Navigation link styles
   const linkClass = (href) =>
     `rounded-lg px-3 py-2 text-sm font-medium transition-all duration-300 ${
       pathname === href
@@ -65,7 +62,6 @@ function NavbarContent() {
         : "text-gray-600 hover:bg-[#E8EFE5] hover:text-[#234C3D]"
     }`;
 
-  // Logout
   const handleLogout = async () => {
     try {
       await authClient.signOut();
@@ -120,10 +116,7 @@ function NavbarContent() {
         <ul className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-2 md:flex">
           {links.map((link) => (
             <li key={link.href}>
-              <Link
-                href={link.href}
-                className={linkClass(link.href)}
-              >
+              <Link href={link.href} className={linkClass(link.href)}>
                 {link.label}
               </Link>
             </li>
@@ -159,7 +152,7 @@ function NavbarContent() {
               </button>
 
               {dropdownOpen && (
-                <div className="absolute right-0 mt-2 w-56 animate-[fadeIn_0.2s_ease-out] rounded-xl border border-[#E7E5DB] bg-white py-2 shadow-xl">
+                <div className="absolute right-0 mt-2 w-56 animate-fadeIn rounded-xl border border-[#E7E5DB] bg-white py-2 shadow-xl">
                   <p className="truncate px-4 py-2 text-sm font-semibold text-gray-900">
                     {user.name}
                   </p>
@@ -229,7 +222,7 @@ function NavbarContent() {
 
       {/* Mobile Navigation */}
       {menuOpen && (
-        <ul className="animate-[fadeIn_0.2s_ease-out] space-y-1 border-t border-[#E7E5DB] px-4 py-3 md:hidden">
+        <ul className="animate-fadeIn space-y-1 border-t border-[#E7E5DB] px-4 py-3 md:hidden">
           {links.map((link) => (
             <li key={link.href}>
               <Link
@@ -243,21 +236,6 @@ function NavbarContent() {
           ))}
         </ul>
       )}
-
-      {/* Animation */}
-      <style jsx>{`
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-            transform: translateY(-5px);
-          }
-
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-      `}</style>
     </header>
   );
 }
