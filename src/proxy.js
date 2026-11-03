@@ -1,13 +1,13 @@
+
 import { NextResponse } from "next/server";
+import { auth } from "@/lib/auth";
 
-export function proxy(request) {
-  const session = request.cookies.get("better-auth.session_token");
+export async function proxy(request) {
+  const session = await auth.api.getSession({
+    headers: request.headers,
+  });
 
-  const isPrivateRoute =
-    request.nextUrl.pathname.startsWith("/my-books") ||
-    request.nextUrl.pathname.startsWith("/profile");
-
-  if (isPrivateRoute && !session) {
+  if (!session) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
@@ -15,5 +15,5 @@ export function proxy(request) {
 }
 
 export const config = {
-matcher: ["/my-books/:path*", "/profile/:path*"],
+  matcher: ["/my-books/:path*", "/profile/:path*"],
 };
