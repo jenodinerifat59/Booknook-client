@@ -18,6 +18,7 @@ const RegisterPage = () => {
 
   const [loading, setLoading] = useState(false);
 
+  // Handle Input Change
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -25,23 +26,28 @@ const RegisterPage = () => {
     });
   };
 
+  // Handle Registration
   const handleRegister = async (e) => {
     e.preventDefault();
 
     const { name, email, password } = formData;
 
+    // Empty Field Validation
     if (!name.trim() || !email.trim() || !password) {
       return toast.error('Please fill in all fields');
     }
 
+    // Password Length Validation
     if (password.length < 6) {
       return toast.error('Password must be at least 6 characters');
     }
 
+    // Uppercase Validation
     if (!/[A-Z]/.test(password)) {
       return toast.error('Password must contain an uppercase letter');
     }
 
+    // Lowercase Validation
     if (!/[a-z]/.test(password)) {
       return toast.error('Password must contain a lowercase letter');
     }
@@ -55,6 +61,7 @@ const RegisterPage = () => {
         password,
       });
 
+      // Server Error Toast
       if (error) {
         toast.error(error.message || 'Registration failed');
         return;
@@ -66,8 +73,8 @@ const RegisterPage = () => {
       router.refresh();
 
     } catch (error) {
-      console.error('Registration error:', error);
-      toast.error('Something went wrong. Please try again.');
+      console.error('Registration Error:', error);
+      toast.error(error.message || 'Something went wrong!');
     } finally {
       setLoading(false);
     }

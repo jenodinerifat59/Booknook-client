@@ -5,6 +5,8 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 
+import { authClient } from '@/lib/auth-client';
+
 import { Swiper, SwiperSlide } from 'swiper/react';
 import {
   Autoplay,
@@ -88,10 +90,14 @@ const imageVariants = {
 export default function HeroSlider() {
   const [mounted, setMounted] = useState(false);
 
-  // Render Swiper only after component mounts in the browser
+  const { data: session } = authClient.useSession();
+
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Session changes will remount Swiper
+  const sliderKey = session?.user?.id || 'guest';
 
   return (
     <section className="w-full overflow-hidden bg-white py-8 sm:py-12">
@@ -100,7 +106,7 @@ export default function HeroSlider() {
 
           {!mounted ? (
             // Loading Placeholder
-            <div className="flex h-[400px] items-center justify-center animate-pulse bg-blue-50 sm:h-[450px] lg:h-[500px]">
+            <div className="flex h-[400px] animate-pulse items-center justify-center bg-blue-50 sm:h-[450px] lg:h-[500px]">
               <div className="text-center">
                 <div className="mb-4 text-6xl">📚</div>
                 <p className="font-semibold text-gray-500">
@@ -110,6 +116,7 @@ export default function HeroSlider() {
             </div>
           ) : (
             <Swiper
+              key={sliderKey}
               modules={[Autoplay, Navigation, Pagination, EffectFade]}
               effect="fade"
               fadeEffect={{ crossFade: true }}
@@ -235,7 +242,7 @@ export default function HeroSlider() {
             </Swiper>
           )}
 
-          {/* Previous Button */}
+          {/* Previous and Next Buttons */}
           {mounted && (
             <>
               <button
@@ -246,7 +253,6 @@ export default function HeroSlider() {
                 ❮
               </button>
 
-              {/* Next Button */}
               <button
                 type="button"
                 aria-label="Next slide"
