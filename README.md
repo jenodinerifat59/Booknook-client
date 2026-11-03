@@ -1,36 +1,101 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+📚 BookNook --- Library Management System
+BookNook is a library management web application where users can explore
+books, borrow books, manage their borrowing history, and return books.
+The project is built with a modern web stack and provides a simple,
+responsive user experience.
+✨ Features
+- Browse and explore available books
+- View book details
+- User authentication with email/password and Google login
+- Borrow books and track currently borrowed books
+- View borrowing history
+- Return borrowed books
+- Manage user profile
+- Responsive design for desktop, tablet, and mobile
+- Toast notifications for user actions
+🛠️ Tech Stack
+Client
+- Next.js
+- React
+- Tailwind CSS
+- Better Auth
+- React Hot Toast
+Server
+- Node.js
+- Express.js
+- MongoDB
+- REST API
+📁 Project Structure
+booknook/
+├── booknook-client/   # Next.js frontend
+└── booknook-server/   # Express.js backend
+Update the folder names above if your repository uses a different
+structure.
 
-## Getting Started
-
-First, run the development server:
-
-```bash
+🚀 Getting Started
+Prerequisites
+- Node.js (LTS)
+- npm
+- MongoDB database
+1. Clone the repository
+git clone YOUR_REPOSITORY_URL
+cd booknook
+2. Set up the backend
+cd booknook-server
+npm install
+Create a .env file in the server directory:
+PORT=5000
+MONGODB_URI=your_mongodb_connection_string
+Start the server:
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+3. Set up the frontend
+Open a new terminal:
+cd booknook-client
+npm install
+Create a .env.local file in the client directory:
+NEXT_PUBLIC_BETTER_AUTH_URL=https://booknook-client-git-main-jenodinerifat.vercel.app
+Configure any additional Better Auth and Google OAuth environment
+variables required by your auth setup.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Start the development server:
+npm run dev
+Open http://localhost:3000 in your browser.
+🔐 Environment Variables
+  Variable                        Description
+  PORT                          Backend server port (for example, 5000)
+MONGODB_URI                   MongoDB connection string
+NEXT_PUBLIC_BETTER_AUTH_URL   Better Auth base URL
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+Keep your credentials private. Never commit .env or .env.local files
+to GitHub.
+🔌 API
+The backend provides REST API endpoints for book and borrowing
+operations.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Example endpoints (adjust to match your server routes):
 
-## Learn More
+  Method    Endpoint               Description
+  GET     /books               Get all books
+GET     /books/:id           Get a book by ID
+POST    /books               Add a book
+GET     /borrow              Get borrowing records
+POST    /borrow              Borrow a book
+PATCH   /borrow/:id/return   Return a borrowed book
+🌐 Live Demo
+- Live Website:https://booknook-client-git-main-jenodinerifat.vercel.app
+- Client Repository: Add your frontend repository URL
+- Server Repository: Add your backend repository URL
+📸 Screenshots
 
-To learn more about Next.js, take a look at the following resources:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+  
+🎯 Project Goal
+The goal of BookNook is to make basic library operations easier through
+a user-friendly web application. It also demonstrates practical skills
+in frontend development, REST API integration, authentication, and
+database operations.
+👨‍💻 Developer
+Jenodine Islam Rifat
+- GitHub: @jenodinerifat59
+⭐ If you find this project useful, consider giving it a star!
