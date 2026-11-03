@@ -3,11 +3,60 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { authClient } from '@/lib/auth-client';
 import toast from 'react-hot-toast';
-import Image from 'next/image';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const API_URL = 'https://booknook-server-5hv3.onrender.com';
+
+// Animation Variants
+const pageVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      duration: 0.5,
+      staggerChildren: 0.12,
+    },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 25 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.5,
+      ease: 'easeOut',
+    },
+  },
+};
+
+const cardVariants = {
+  hidden: {
+    opacity: 0,
+    y: 30,
+    scale: 0.95,
+  },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: {
+      duration: 0.45,
+      ease: 'easeOut',
+    },
+  },
+};
+
+const exitVariants = {
+  opacity: 0,
+  x: -40,
+  scale: 0.95,
+  transition: { duration: 0.3 },
+};
 
 const MyBorrowsPage = () => {
   const { data: session, isPending } = authClient.useSession();
@@ -19,7 +68,7 @@ const MyBorrowsPage = () => {
 
   const userEmail = session?.user?.email;
 
-  // Format date without timezone shifting
+  // Format Date
   const formatDate = (date) => {
     if (!date) return 'N/A';
 
@@ -34,7 +83,7 @@ const MyBorrowsPage = () => {
     });
   };
 
-  // Fetch borrow and view history
+  // Fetch Borrow History
   useEffect(() => {
     if (isPending) return;
 
@@ -121,7 +170,7 @@ const MyBorrowsPage = () => {
     }
   };
 
-  // Delete individual returned or viewed record
+  // Delete Individual Record
   const handleDelete = async (id) => {
     try {
       setDeletingId(id);
@@ -194,11 +243,19 @@ const MyBorrowsPage = () => {
   }
 
   return (
-    <main className="min-h-screen bg-[#f7f5ed] px-4 py-12 text-[#193c2b] dark:bg-[#101b16] dark:text-gray-100 sm:px-6">
+    <motion.main
+      variants={pageVariants}
+      initial="hidden"
+      animate="visible"
+      className="min-h-screen bg-[#f7f5ed] px-4 py-12 text-[#193c2b] dark:bg-[#101b16] dark:text-gray-100 sm:px-6"
+    >
       <div className="mx-auto max-w-7xl">
 
         {/* Header */}
-        <div className="mb-10">
+        <motion.div
+          variants={itemVariants}
+          className="mb-10"
+        >
           <p className="mb-3 text-sm font-bold uppercase tracking-[3px] text-emerald-700 dark:text-emerald-400">
             Your Library
           </p>
@@ -210,10 +267,13 @@ const MyBorrowsPage = () => {
           <p className="mt-3 text-sm text-gray-500 dark:text-gray-400">
             Manage your borrowed books and keep track of your reading journey.
           </p>
-        </div>
+        </motion.div>
 
         {/* Summary Cards */}
-        <div className="mb-10 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <motion.div
+          variants={itemVariants}
+          className="mb-10 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3"
+        >
           <SummaryCard
             title="Currently Borrowed"
             value={currentlyBorrowed}
@@ -231,11 +291,14 @@ const MyBorrowsPage = () => {
             value={viewedBooks}
             color="text-blue-600 dark:text-blue-400"
           />
-        </div>
+        </motion.div>
 
         {/* Empty State */}
         {borrows.length === 0 ? (
-          <div className="rounded-2xl border border-[#e7e5d9] bg-white px-5 py-20 text-center shadow-sm dark:border-[#294536] dark:bg-[#192b21]">
+          <motion.div
+            variants={itemVariants}
+            className="rounded-2xl border border-[#e7e5d9] bg-white px-5 py-20 text-center shadow-sm dark:border-[#294536] dark:bg-[#192b21]"
+          >
             <div className="mb-5 text-5xl">📚</div>
 
             <h2 className="text-2xl font-bold">
@@ -252,11 +315,14 @@ const MyBorrowsPage = () => {
             >
               Browse Books
             </Link>
-          </div>
+          </motion.div>
         ) : (
           <>
-            {/* Desktop Table - Large Screens Only */}
-            <div className="hidden overflow-hidden rounded-2xl border border-[#e7e5d9] bg-white shadow-sm dark:border-[#294536] dark:bg-[#192b21] lg:block">
+            {/* Desktop Table */}
+            <motion.div
+              variants={itemVariants}
+              className="hidden overflow-hidden rounded-2xl border border-[#e7e5d9] bg-white shadow-sm dark:border-[#294536] dark:bg-[#192b21] lg:block"
+            >
               <div className="overflow-x-auto">
                 <table className="w-full min-w-[850px] text-left">
                   <thead className="bg-[#edf2e9] text-sm dark:bg-[#22392b]">
@@ -270,208 +336,237 @@ const MyBorrowsPage = () => {
                   </thead>
 
                   <tbody>
-                    {borrows.map((borrow) => {
-                      const image =
-                        borrow.book?.coverImage || borrow.bookImage;
+                    <AnimatePresence mode="popLayout">
+                      {borrows.map((borrow) => {
+                        const image =
+                          borrow.book?.coverImage || borrow.bookImage;
 
-                      const title =
-                        borrow.book?.title ||
-                        borrow.bookTitle ||
-                        'Book not available';
+                        const title =
+                          borrow.book?.title ||
+                          borrow.bookTitle ||
+                          'Book not available';
 
-                      return (
-                        <tr
-                          key={borrow._id}
-                          className="border-t border-[#eeeade] transition hover:bg-[#f8faf5] dark:border-[#294536] dark:hover:bg-[#203529]"
-                        >
-                          <td className="px-6 py-5">
-                            <div className="flex items-center gap-4">
-                              {image ? (
-                                <Image
-                                  width={70}
-                                  height={85}
-                                  src={image}
-                                  alt={title}
-                                  className="h-20 w-14 rounded-lg object-cover"
-                                />
+                        return (
+                          <motion.tr
+                            key={borrow._id}
+                            variants={cardVariants}
+                            initial="hidden"
+                            animate="visible"
+                            exit={exitVariants}
+                            layout
+                            className="border-t border-[#eeeade] transition hover:bg-[#f8faf5] dark:border-[#294536] dark:hover:bg-[#203529]"
+                          >
+                            <td className="px-6 py-5">
+                              <div className="flex items-center gap-4">
+                                {image ? (
+                                  <Image
+                                    width={70}
+                                    height={85}
+                                    src={image}
+                                    alt={title}
+                                    className="h-20 w-14 rounded-lg object-cover"
+                                  />
+                                ) : (
+                                  <div className="flex h-20 w-14 items-center justify-center rounded-lg bg-gray-100 text-xs dark:bg-gray-700">
+                                    📖
+                                  </div>
+                                )}
+
+                                <span className="font-bold">
+                                  {title}
+                                </span>
+                              </div>
+                            </td>
+
+                            <td className="px-6 py-5 text-sm">
+                              {borrow.status === 'viewed'
+                                ? formatDate(borrow.createdAt)
+                                : formatDate(
+                                    borrow.borrowDate || borrow.createdAt
+                                  )}
+                            </td>
+
+                            <td className="px-6 py-5 text-sm">
+                              {borrow.status === 'viewed'
+                                ? 'N/A'
+                                : formatDate(borrow.returnDate)}
+                            </td>
+
+                            <td className="px-6 py-5">
+                              <StatusBadge status={borrow.status} />
+                            </td>
+
+                            <td className="px-6 py-5">
+                              {borrow.status === 'borrowed' ? (
+                                <button
+                                  onClick={() => handleReturn(borrow._id)}
+                                  disabled={returningId === borrow._id}
+                                  className="whitespace-nowrap rounded-lg bg-[#245c3b] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#17452b] disabled:opacity-50"
+                                >
+                                  {returningId === borrow._id
+                                    ? 'Returning...'
+                                    : 'Return Book'}
+                                </button>
                               ) : (
-                                <div className="flex h-20 w-14 items-center justify-center rounded-lg bg-gray-100 text-xs dark:bg-gray-700">
-                                  📖
-                                </div>
+                                <button
+                                  onClick={() => handleDelete(borrow._id)}
+                                  disabled={deletingId === borrow._id}
+                                  className="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700 disabled:opacity-50"
+                                >
+                                  {deletingId === borrow._id
+                                    ? 'Deleting...'
+                                    : 'Delete'}
+                                </button>
                               )}
+                            </td>
+                          </motion.tr>
+                        );
+                      })}
+                    </AnimatePresence>
+                  </tbody>
+                </table>
+              </div>
+            </motion.div>
 
-                              <span className="font-bold">{title}</span>
-                            </div>
-                          </td>
+            {/* Mobile & Tablet Cards */}
+            <motion.div
+              variants={itemVariants}
+              className="grid gap-5 lg:hidden"
+            >
+              <AnimatePresence mode="popLayout">
+                {borrows.map((borrow) => {
+                  const image =
+                    borrow.book?.coverImage || borrow.bookImage;
 
-                          <td className="px-6 py-5 text-sm">
+                  const title =
+                    borrow.book?.title ||
+                    borrow.bookTitle ||
+                    'Book not available';
+
+                  return (
+                    <motion.div
+                      key={borrow._id}
+                      variants={cardVariants}
+                      initial="hidden"
+                      animate="visible"
+                      exit={exitVariants}
+                      layout
+                      whileHover={{ y: -5 }}
+                      className="rounded-2xl border border-[#e7e5d9] bg-white p-5 shadow-sm transition hover:shadow-md dark:border-[#294536] dark:bg-[#192b21]"
+                    >
+                      <div className="flex gap-4">
+                        {image ? (
+                          <Image
+                            width={90}
+                            height={120}
+                            src={image}
+                            alt={title}
+                            className="h-32 w-24 shrink-0 rounded-xl object-cover"
+                          />
+                        ) : (
+                          <div className="flex h-32 w-24 shrink-0 items-center justify-center rounded-xl bg-gray-100 text-2xl dark:bg-gray-700">
+                            📖
+                          </div>
+                        )}
+
+                        <div className="min-w-0 flex-1">
+                          <h2 className="break-words text-base font-bold sm:text-lg">
+                            {title}
+                          </h2>
+
+                          <div className="mt-3">
+                            <StatusBadge status={borrow.status} />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="mt-5 grid grid-cols-2 gap-3 rounded-xl bg-[#f8f6f0] p-4 dark:bg-[#22392b]">
+                        <div>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            Borrow Date
+                          </p>
+
+                          <p className="mt-1 text-sm font-semibold">
                             {borrow.status === 'viewed'
                               ? formatDate(borrow.createdAt)
                               : formatDate(
                                   borrow.borrowDate || borrow.createdAt
                                 )}
-                          </td>
+                          </p>
+                        </div>
 
-                          <td className="px-6 py-5 text-sm">
+                        <div>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            Return Date
+                          </p>
+
+                          <p className="mt-1 text-sm font-semibold">
                             {borrow.status === 'viewed'
                               ? 'N/A'
                               : formatDate(borrow.returnDate)}
-                          </td>
-
-                          <td className="px-6 py-5">
-                            <StatusBadge status={borrow.status} />
-                          </td>
-
-                          <td className="px-6 py-5">
-                            {borrow.status === 'borrowed' ? (
-                              <button
-                                onClick={() => handleReturn(borrow._id)}
-                                disabled={returningId === borrow._id}
-                                className="whitespace-nowrap rounded-lg bg-[#245c3b] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#17452b] disabled:opacity-50"
-                              >
-                                {returningId === borrow._id
-                                  ? 'Returning...'
-                                  : 'Return Book'}
-                              </button>
-                            ) : (
-                              <button
-                                onClick={() => handleDelete(borrow._id)}
-                                disabled={deletingId === borrow._id}
-                                className="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700 disabled:opacity-50"
-                              >
-                                {deletingId === borrow._id
-                                  ? 'Deleting...'
-                                  : 'Delete'}
-                              </button>
-                            )}
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            {/* Mobile & Tablet Cards */}
-            <div className="grid gap-5 lg:hidden">
-              {borrows.map((borrow) => {
-                const image =
-                  borrow.book?.coverImage || borrow.bookImage;
-
-                const title =
-                  borrow.book?.title ||
-                  borrow.bookTitle ||
-                  'Book not available';
-
-                return (
-                  <div
-                    key={borrow._id}
-                    className="rounded-2xl border border-[#e7e5d9] bg-white p-5 shadow-sm transition hover:shadow-md dark:border-[#294536] dark:bg-[#192b21]"
-                  >
-                    <div className="flex gap-4">
-                      {image ? (
-                        <Image
-                          width={90}
-                          height={120}
-                          src={image}
-                          alt={title}
-                          className="h-32 w-24 shrink-0 rounded-xl object-cover"
-                        />
-                      ) : (
-                        <div className="flex h-32 w-24 shrink-0 items-center justify-center rounded-xl bg-gray-100 text-2xl dark:bg-gray-700">
-                          📖
+                          </p>
                         </div>
+                      </div>
+
+                      {borrow.status === 'returned' && borrow.returnedAt && (
+                        <p className="mt-3 text-xs text-gray-500 dark:text-gray-400">
+                          Actually returned on: {formatDate(borrow.returnedAt)}
+                        </p>
                       )}
 
-                      <div className="min-w-0 flex-1">
-                        <h2 className="break-words text-base font-bold sm:text-lg">
-                          {title}
-                        </h2>
-
-                        <div className="mt-3">
-                          <StatusBadge status={borrow.status} />
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="mt-5 grid grid-cols-2 gap-3 rounded-xl bg-[#f8f6f0] p-4 dark:bg-[#22392b]">
-                      <div>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">
-                          Borrow Date
-                        </p>
-
-                        <p className="mt-1 text-sm font-semibold">
-                          {borrow.status === 'viewed'
-                            ? formatDate(borrow.createdAt)
-                            : formatDate(
-                                borrow.borrowDate || borrow.createdAt
-                              )}
-                        </p>
-                      </div>
-
-                      <div>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">
-                          Return Date
-                        </p>
-
-                        <p className="mt-1 text-sm font-semibold">
-                          {borrow.status === 'viewed'
-                            ? 'N/A'
-                            : formatDate(borrow.returnDate)}
-                        </p>
-                      </div>
-                    </div>
-
-                    {borrow.status === 'returned' && borrow.returnedAt && (
-                      <p className="mt-3 text-xs text-gray-500 dark:text-gray-400">
-                        Actually returned on: {formatDate(borrow.returnedAt)}
-                      </p>
-                    )}
-
-                    {borrow.status === 'borrowed' ? (
-                      <button
-                        onClick={() => handleReturn(borrow._id)}
-                        disabled={returningId === borrow._id}
-                        className="mt-5 w-full rounded-xl bg-[#245c3b] py-3 font-semibold text-white transition hover:bg-[#17452b] disabled:opacity-50"
-                      >
-                        {returningId === borrow._id
-                          ? 'Returning...'
-                          : 'Return Book'}
-                      </button>
-                    ) : (
-                      <button
-                        onClick={() => handleDelete(borrow._id)}
-                        disabled={deletingId === borrow._id}
-                        className="mt-5 w-full rounded-xl bg-red-600 py-3 font-semibold text-white transition hover:bg-red-700 disabled:opacity-50"
-                      >
-                        {deletingId === borrow._id
-                          ? 'Deleting...'
-                          : 'Delete Record'}
-                      </button>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
+                      {borrow.status === 'borrowed' ? (
+                        <button
+                          onClick={() => handleReturn(borrow._id)}
+                          disabled={returningId === borrow._id}
+                          className="mt-5 w-full rounded-xl bg-[#245c3b] py-3 font-semibold text-white transition hover:bg-[#17452b] disabled:opacity-50"
+                        >
+                          {returningId === borrow._id
+                            ? 'Returning...'
+                            : 'Return Book'}
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => handleDelete(borrow._id)}
+                          disabled={deletingId === borrow._id}
+                          className="mt-5 w-full rounded-xl bg-red-600 py-3 font-semibold text-white transition hover:bg-red-700 disabled:opacity-50"
+                        >
+                          {deletingId === borrow._id
+                            ? 'Deleting...'
+                            : 'Delete Record'}
+                        </button>
+                      )}
+                    </motion.div>
+                  );
+                })}
+              </AnimatePresence>
+            </motion.div>
           </>
         )}
       </div>
-    </main>
+    </motion.main>
   );
 };
 
 // Summary Card
 const SummaryCard = ({ title, value, color = '' }) => (
-  <div className="rounded-2xl border border-[#e7e5d9] bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-md dark:border-[#294536] dark:bg-[#192b21]">
+  <motion.div
+    variants={cardVariants}
+    whileHover={{ y: -7, scale: 1.02 }}
+    className="rounded-2xl border border-[#e7e5d9] bg-white p-6 shadow-sm transition-shadow hover:shadow-lg dark:border-[#294536] dark:bg-[#192b21]"
+  >
     <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
       {title}
     </p>
 
-    <h2 className={`mt-3 text-4xl font-extrabold ${color}`}>
+    <motion.h2
+      initial={{ opacity: 0, scale: 0.5 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.6 }}
+      className={`mt-3 text-4xl font-extrabold ${color}`}
+    >
       {value}
-    </h2>
-  </div>
+    </motion.h2>
+  </motion.div>
 );
 
 // Status Badge
@@ -488,13 +583,15 @@ const StatusBadge = ({ status }) => {
   };
 
   return (
-    <span
+    <motion.span
+      initial={{ opacity: 0, scale: 0.8 }}
+      animate={{ opacity: 1, scale: 1 }}
       className={`inline-block rounded-full px-3 py-1.5 text-xs font-bold capitalize ${
         styles[status] || 'bg-gray-100 text-gray-600'
       }`}
     >
       {status}
-    </span>
+    </motion.span>
   );
 };
 
