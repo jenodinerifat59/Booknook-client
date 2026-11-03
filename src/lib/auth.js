@@ -13,12 +13,19 @@ export const auth = betterAuth({
     client,
   }),
 
+  // Allow frontend origins
+  trustedOrigins: [
+    "http://localhost:3000",
+    "https://booknook-client-virid.vercel.app",
+  ],
+
   emailAndPassword: {
     enabled: true,
     minPasswordLength: 6,
+
     sendResetPassword: async ({ user, url }) => {
-  await sendResetEmail(user.email, url);
-},
+      await sendResetEmail(user.email, url);
+    },
   },
 
   socialProviders: {
